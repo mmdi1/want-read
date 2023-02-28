@@ -3,6 +3,7 @@ module want-read
 go 1.20
 
 require (
+	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/getlantern/systray v1.2.1
 	github.com/gin-gonic/gin v1.9.0
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
