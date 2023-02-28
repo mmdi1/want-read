@@ -11,3 +11,6 @@ bin
 .vscode
 /vendor
 *.ps1
+upload/
+*.txt
+*.png

@@ -2,16 +2,22 @@ package main
 
 import (
 	"embed"
+	"want-read/server/api"
+
+	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
 	"github.com/getlantern/systray"
+	"github.com/gin-gonic/gin"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
-//go:embed all:frontend/dist
-var assets embed.FS
+var (
+	//go:embed all:frontend/dist
+	assets embed.FS
+	title  = "想阅"
+)
 
 func onReady() {
 	systray.SetTitle("Awesome App")
@@ -27,29 +33,33 @@ func onReady() {
 func onExit() {
 	println("click exit")
 }
+
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 	// 设置托盘提示信息
 	go systray.Run(onReady, onExit)
-	// Sets the icon of a menu item. Only available on Mac and Windows.
-	// Create application with options
+	r := gin.Default()
+	r.Use(api.Cors())
+	api.LocalUrl(r)
 	err := wails.Run(&options.App{
-		Title:       "quiet-read",
-		Width:       1024,
-		Height:      100,
-		Frameless:   true,  //边框
+		Title:       title,
+		Width:       600,
+		Height:      400,
+		Frameless:   false, //边框
 		AlwaysOnTop: false, //是否最顶层
 		AssetServer: &assetserver.Options{
-			Assets: assets,
+			// Assets:  nil,
+			Handler: r,
+			Assets:  assets,
 		},
-		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
-		Windows: &windows.Options{
+		// BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
 
+		Windows: &windows.Options{
 			WebviewIsTransparent:              true,
-			WindowIsTranslucent:               true,
-			DisableWindowIcon:                 false,
-			DisableFramelessWindowDecorations: false,
+			WindowIsTranslucent:               false,
+			DisableWindowIcon:                 true,
+			DisableFramelessWindowDecorations: true,
 			WebviewUserDataPath:               "",
 			Theme:                             windows.SystemDefault,
 			CustomTheme: &windows.ThemeSettings{

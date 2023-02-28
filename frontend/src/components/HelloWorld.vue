@@ -1,32 +1,28 @@
 <script lang="ts" setup>
-import { onMounted, reactive } from 'vue'
-import { Greet } from '../../wailsjs/go/main/App'
-import { WindowMinimise } from '../../wailsjs/runtime/runtime'
+import { ref, onMounted, reactive } from "vue";
+import { WindowMinimise } from "../../wailsjs/runtime/runtime";
 const data = reactive({
   name: "",
   resultText: "Please enter your name below 👇",
-})
-
-const handleFolderSelect = (event: any) => {
-  var files = event.target.files;
-  console.log("aaaaaaaaaaaaaaaa")
-  if (files.length > 0) {
-    var folderPath = files[0].path;
-    console.log(folderPath);
-  }
-}
-onMounted(() => {
-  let ele = document.getElementById("open")
-  console.log('aaaaaaaaaaaaaaaaa', ele)
-  ele?.addEventListener('change', handleFolderSelect);
-})
+});
 </script>
 
 <template>
-  <main>
+  <main >
+    <div style="--wails-dragable: drag;height: 100px;width: 50px;background-color: aqua;"></div>
     <div id="result" class="result">{{ data.resultText }}</div>
     <button @click="WindowMinimise">最小化</button>
-    <input type="file" name="filename" id="open" />
+    <n-upload
+      action="/api/uploadFile"
+      :headers="{
+        'naive-info': 'hello!',
+      }"
+      :data="{
+        'naive-data': 'cool! naive!',
+      }"
+    >
+      <n-button>选择</n-button>
+    </n-upload>
   </main>
 </template>
 
