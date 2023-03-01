@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"syscall"
-	"unsafe"
 
 	"github.com/lxn/win"
 )
@@ -46,19 +45,6 @@ var (
 	getForegroundWindow      = user32DLL.NewProc("GetForegroundWindow")
 	getWindowThreadProcessId = user32DLL.NewProc("GetWindowThreadProcessId")
 )
-
-func keyboardProc(nCode, wParam, lParam uintptr) uintptr {
-	kbd := (*KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
-	fmt.Println("==============>", wParam, kbd.VkCode)
-	switch wParam {
-	case WM_KEYDOWN, WM_SYSKEYDOWN:
-		fmt.Println("按下Key pressed:", kbd.VkCode)
-	case WM_KEYUP:
-		fmt.Println("抬起Key pressed:", kbd.VkCode)
-	}
-	ret, _, _ := callNextHookEx.Call(hookID, nCode, wParam, lParam)
-	return ret
-}
 
 func winEventProc(hWinEventHook win.HWINEVENTHOOK, event uint32, hwnd win.HWND, idObject, idChild int32, idEventThread uint32, dwmsEventTime uint32) uintptr {
 	switch event {
