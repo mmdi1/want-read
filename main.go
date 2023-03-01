@@ -16,7 +16,7 @@ import (
 var (
 	//go:embed all:frontend/dist
 	assets embed.FS
-	title  = "想阅"
+	title  = "app"
 )
 
 func onReady() {
@@ -38,14 +38,14 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 	// 设置托盘提示信息
-	go systray.Run(onReady, onExit)
+	// go systray.Run(onReady, onExit)
 	r := gin.Default()
 	r.Use(api.Cors())
 	api.LocalUrl(r)
 	err := wails.Run(&options.App{
 		Title:       title,
-		Width:       600,
-		Height:      400,
+		Width:       200,
+		Height:      200,
 		Frameless:   false, //边框
 		AlwaysOnTop: false, //是否最顶层
 		AssetServer: &assetserver.Options{

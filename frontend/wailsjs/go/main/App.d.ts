@@ -4,3 +4,5 @@
 export function Greet(arg1:string):Promise<string>;
 
 export function ReceiveFilePath(arg1:string):Promise<void>;
+
+export function SettingDefaultWindows():Promise<void>;
