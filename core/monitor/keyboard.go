@@ -58,7 +58,6 @@ func KeyBoardHandler() {
 	)
 	if err != nil {
 		log.Println("hook call err:", err)
-		return
 	}
 	if hookID == 0 {
 		fmt.Println("Failed to set up hook")

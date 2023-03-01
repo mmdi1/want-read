@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"want-read/external/read"
 	"want-read/server/api"
 
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
@@ -37,6 +38,7 @@ func onExit() {
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
+	readApp := read.NewApp()
 	// 设置托盘提示信息
 	// go systray.Run(onReady, onExit)
 	r := gin.Default()
@@ -44,8 +46,8 @@ func main() {
 	api.LocalUrl(r)
 	err := wails.Run(&options.App{
 		Title:       title,
-		Width:       200,
-		Height:      200,
+		Width:       600,
+		Height:      400,
 		Frameless:   false, //边框
 		AlwaysOnTop: false, //是否最顶层
 		AssetServer: &assetserver.Options{
@@ -56,24 +58,25 @@ func main() {
 		// BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
 
 		Windows: &windows.Options{
-			WebviewIsTransparent:              true,
-			WindowIsTranslucent:               false,
-			DisableWindowIcon:                 true,
-			DisableFramelessWindowDecorations: true,
-			WebviewUserDataPath:               "",
-			Theme:                             windows.SystemDefault,
-			CustomTheme: &windows.ThemeSettings{
-				DarkModeTitleBar:   windows.RGB(20, 20, 20),
-				DarkModeTitleText:  windows.RGB(200, 200, 200),
-				DarkModeBorder:     windows.RGB(20, 0, 20),
-				LightModeTitleBar:  windows.RGB(200, 200, 200),
-				LightModeTitleText: windows.RGB(20, 20, 20),
-				LightModeBorder:    windows.RGB(200, 200, 200),
-			},
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  false,
+			// DisableWindowIcon:                 true,
+			// DisableFramelessWindowDecorations: true,
+			// WebviewUserDataPath:               "",
+			// Theme:                             windows.SystemDefault,
+			// CustomTheme: &windows.ThemeSettings{
+			// 	DarkModeTitleBar:   windows.RGB(20, 20, 20),
+			// 	DarkModeTitleText:  windows.RGB(200, 200, 200),
+			// 	DarkModeBorder:     windows.RGB(20, 0, 20),
+			// 	LightModeTitleBar:  windows.RGB(200, 200, 200),
+			// 	LightModeTitleText: windows.RGB(20, 20, 20),
+			// 	LightModeBorder:    windows.RGB(200, 200, 200),
+			// },
 		},
 		OnStartup: app.startup,
 		Bind: []interface{}{
 			app,
+			readApp,
 		},
 	})
 	if err != nil {

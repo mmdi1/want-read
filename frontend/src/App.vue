@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import HelloWorld from "./components/HelloWorld.vue";
+import Index from "./pages/index.vue";
 </script>
 
 <template>
   <div class="main">
-    <HelloWorld />
+    <Index />
   </div>
 </template>
 

@@ -5,11 +5,3 @@
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
-
-export function ReceiveFilePath(arg1) {
-  return window['go']['main']['App']['ReceiveFilePath'](arg1);
-}
-
-export function SettingDefaultWindows() {
-  return window['go']['main']['App']['SettingDefaultWindows']();
-}
