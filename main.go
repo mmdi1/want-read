@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"want-read/core/db"
 	"want-read/external/read"
 	"want-read/server/api"
 
@@ -36,6 +37,7 @@ func onExit() {
 }
 
 func main() {
+	db.InitLevelDb("./data")
 	// Create an instance of the app structure
 	app := NewApp()
 	readApp := read.NewApp()

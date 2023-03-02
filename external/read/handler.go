@@ -1,32 +1,81 @@
 package read
 
 import (
-	"fmt"
-	"want-read/configs"
-
-	"github.com/lxn/win"
+	"log"
+	"want-read/core/db"
+	"want-read/core/txt"
 )
 
 type App struct {
+	book *db.Book
+	//当前阅读的书
+	current [][]rune
+	//当前页数
+	readPage int
 }
 
 func NewApp() *App {
 	return &App{}
 }
 
-// GWL_EXSTYLE       //设置一个新的扩展窗口风格
-// GWL_HINSTANCE //设置一个新的应用程序实例句柄
-// GWL_ID //为窗口设置一个新的标识
-// GWL_STYLE   //设置一个新的窗口风格
-// GWL_USERDATA  //设置与窗口相关的32位值
-// GWL_WNDPROC          //设置一个新的窗口过程
-func (sef *App) ReadMod() {
-	configs.IS_READ_MOD = !configs.IS_READ_MOD
-	fmt.Println("aaaaaaaaaaaaaa", configs.IS_READ_MOD)
-	if configs.IS_READ_MOD {
-		num := win.SetWindowLong(configs.APP_HUND, win.GWL_EXSTYLE, win.GetWindowLong(configs.APP_HUND, win.GWL_EXSTYLE)|win.WS_EX_LAYERED)
-		fmt.Println("zzzzzzzzzzzzzz", configs.APP_HUND, num)
-		return
+func (sef *App) GetBookshelf() any {
+	result := db.QueryList[db.Book](db.T_BOOKS)
+	return result.Data
+}
+
+func (sef *App) GetBook() db.Book {
+	out := db.Book{}
+	result := db.QueryList[db.Book](db.T_BOOKS)
+	if len(result.Data) > 0 {
+		out = result.Data[0]
 	}
-	win.SetWindowLong(configs.APP_HUND, win.GWL_EXSTYLE, configs.OLD_GWL_EXSTYLE)
+	return out
+}
+
+// 上一页
+func (sef *App) PrevPage(page int) string {
+	sef.readPage--
+	if sef.readPage < 0 {
+		sef.readPage = 0
+		return "fisrt page"
+	}
+	return string(sef.current[page])
+}
+
+// 下一页
+func (sef *App) NextPage(page int) string {
+	sef.readPage++
+	if sef.readPage > len(sef.current) {
+		sef.readPage--
+		return "last page"
+	}
+	return string(sef.current[page])
+}
+
+// 重新分页
+func (sef *App) ReloadPage(id string) string {
+	result := db.QueryList[db.Book](db.T_BOOKS)
+	for i := 0; i < len(result.Data); i++ {
+		if result.Data[i].IdKey == id {
+			sef.book = &result.Data[i]
+			break
+		}
+	}
+	size, err := db.GetNum(db.K_ShowSize)
+	if err != nil {
+		log.Println("reload page get num err:", err)
+		return err.Error()
+	}
+	bt, err := txt.ReadTxt("../../upload/" + sef.book.FileName)
+	if err != nil {
+		log.Println("reload page read txt err:", err)
+		return err.Error()
+	}
+	sef.current = txt.PageSlicing([]rune(string(bt)), size)
+	page := sef.book.ReadSize / size
+	if page > len(sef.current) {
+		return "last page"
+	}
+	sef.readPage = page
+	return string(sef.current[page])
 }
