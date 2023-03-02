@@ -5,6 +5,7 @@ import (
 	"want-read/core/db"
 	"want-read/external/read"
 	"want-read/server/api"
+	"want-read/server/api/ws"
 
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
@@ -46,12 +47,16 @@ func main() {
 	r := gin.Default()
 	r.Use(api.Cors())
 	api.LocalUrl(r)
+	wsGin := gin.New()
+	wsGin.Use(api.Cors())
+	wsGin.GET("/ws", ws.WsHandler)
+	go wsGin.Run("127.0.0.1:8899")
 	err := wails.Run(&options.App{
 		Title:       title,
 		Width:       600,
 		Height:      400,
-		Frameless:   false, //边框
-		AlwaysOnTop: false, //是否最顶层
+		Frameless:   true, //边框
+		AlwaysOnTop: true, //是否最顶层
 		AssetServer: &assetserver.Options{
 			// Assets:  nil,
 			Handler: r,

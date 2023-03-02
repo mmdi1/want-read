@@ -1,7 +1,7 @@
 
 
 <template>
-  <div class="index"  style="--wails-draggable: drag">
+  <div class="index">
     <n-grid cols="2">
       <n-grid-item>
         <div>
@@ -9,15 +9,49 @@
             选择书籍
           </n-divider>
           <n-row>
-            <n-upload action="/api/uploadFile">
-              <n-button>选择文件</n-button>
+            <n-upload
+              action="/api/uploadFile"
+              :show-file-list="false"
+              @finish="handleFinish"
+            >
+              <n-button>选择文本</n-button>
             </n-upload>
             文本需要设置为UTF-8编码
           </n-row>
-          <n-row style="text-align: center">
-            <n-button strong secondary type="info" size="small" @click="ReadMod">
-              阅读模式
-            </n-button>
+          <n-row>
+            <n-scrollbar style="max-height: 220px">
+              <n-list hoverable clickable>
+                <n-list-item v-for="(item, i) in bookshelf">
+                  <n-thing content-style="margin-top: 10px;">
+                    <template #description>
+                      <p class="font12 title">{{ item.name }}</p>
+                      <n-space size="small" style="margin-top: 4px">
+                        <n-button
+                          type="warning"
+                          size="tiny"
+                          @click="readBook(item.id)"
+                        >
+                          阅读
+                        </n-button>
+                        <n-tag :bordered="false" type="info" size="small">
+                          {{ ~~(item.read_size / item.totle_size) }}%
+                        </n-tag>
+                        <n-tag :bordered="false" type="info" size="small">
+                          {{ item.total_size }}字
+                        </n-tag>
+                        <n-button
+                          type="error"
+                          size="tiny"
+                          @click="removeBook(item.id)"
+                        >
+                          删除
+                        </n-button>
+                      </n-space>
+                    </template>
+                  </n-thing>
+                </n-list-item>
+              </n-list>
+            </n-scrollbar>
           </n-row>
         </div>
       </n-grid-item>
@@ -27,8 +61,38 @@
 </template>
 <script lang="ts" setup>
 import Setting from "./setting.vue";
-import { ReadMod } from "../../wailsjs/go/read/App";
-
+import {
+  GetBookshelf,
+  ReloadPage,
+  RemoveBook,
+} from "../../wailsjs/go/read/App";
+import { onMounted, ref } from "vue";
+let bookshelf: any = ref([]);
+let props = defineProps<{
+  mode: any;
+}>();
+const refBookshelf = async () => {
+  let data = await GetBookshelf();
+  bookshelf.value = data;
+  console.log(data);
+};
+onMounted(async () => {
+  refBookshelf();
+});
+const handleFinish = (res: any) => {
+  refBookshelf();
+};
+const readBook = async (id: string) => {
+  let content = await ReloadPage(id);
+  props.mode.screen = "read";
+  props.mode.content = content;
+};
+const removeBook = async (id: string) => {
+  let ok = await RemoveBook(id);
+  if (ok) {
+    refBookshelf();
+  }
+};
 </script>
 <style>
 .index {
@@ -36,5 +100,13 @@ import { ReadMod } from "../../wailsjs/go/read/App";
 }
 .key {
   line-height: 28px;
+}
+.n-row {
+  display: block;
+}
+.title {
+  text-align: left;
+  margin-block-start: 0;
+  margin-block-end: 0;
 }
 </style>

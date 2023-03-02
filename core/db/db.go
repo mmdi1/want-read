@@ -24,7 +24,7 @@ func InitLevelDb(path string) {
 		var err error
 		_db, err = leveldb.OpenFile(path, nil)
 		if err != nil {
-			log.Fatalln("open level db err:", err)
+			log.Println("open level db err:", err)
 		}
 	})
 }
@@ -60,6 +60,15 @@ func InsertOne[T IModel](key string, t T) error {
 	return _db.Put([]byte(key), bt, nil)
 }
 
+// 覆盖
+func CoverList[T IModel](key string, ts []T) error {
+	bt, err := json.Marshal(ts)
+	if err != nil {
+		return err
+	}
+	return _db.Put([]byte(key), bt, nil)
+}
+
 // 根据key获取val
 func Get(key string) ([]byte, error) {
 	return _db.Get([]byte(key), nil)
@@ -68,6 +77,9 @@ func Get(key string) ([]byte, error) {
 // 根据key获取num
 func GetNum(key string) (int, error) {
 	bt, _ := Get(key)
+	if len(bt) == 0 {
+		return 50, nil
+	}
 	return strconv.Atoi(string(bt))
 }
 

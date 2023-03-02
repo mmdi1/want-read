@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/getlantern/systray v1.2.1
 	github.com/gin-gonic/gin v1.9.0
+	github.com/gorilla/websocket v1.5.0
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/wailsapp/wails/v2 v2.3.1

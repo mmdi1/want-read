@@ -5,6 +5,8 @@ import (
 	"log"
 	"syscall"
 	"unsafe"
+	"want-read/configs"
+	"want-read/server/api/ws"
 
 	"github.com/lxn/win"
 )
@@ -24,6 +26,22 @@ type KBDLLHOOKSTRUCT struct {
 	Time        uint32
 	DwExtraInfo uint32
 }
+type keyOpt struct {
+	Code   uint32
+	IsDown bool
+}
+
+const (
+	PrevPage = iota
+	NextPage
+	HidePanel
+)
+
+type operationkey struct {
+	name    string
+	handler int
+	group   []uint32
+}
 
 var (
 	user32           = syscall.MustLoadDLL("user32.dll")
@@ -35,16 +53,99 @@ var (
 	unhookWindowsHookEx = user32.MustFindProc("UnhookWindowsHookEx")
 	hookID              uintptr
 	err                 error
+	downChan            = make(chan keyOpt, 1)
+	downAllKeys         = map[uint32]bool{}
+	settings            = []operationkey{
+		{
+			name:    "上一页",
+			handler: PrevPage,
+			group:   []uint32{164, 188},
+		},
+		{
+			name:    "下一页",
+			handler: NextPage,
+			group:   []uint32{164, 190},
+		},
+		{
+			name:    "隐藏",
+			handler: NextPage,
+			group:   []uint32{164, 77},
+		},
+	}
 )
 
+func hasgroupKey() {
+	for i := 0; i < len(settings); i++ {
+		need_len := 0
+		down_len := map[uint32]bool{}
+		for x := 0; x < len(settings[i].group); x++ {
+			need_len = len(settings[x].group)
+			_, ok := downAllKeys[settings[i].group[x]]
+			if ok {
+				down_len[settings[i].group[x]] = true
+			}
+		}
+		if need_len == len(downAllKeys) && need_len == len(down_len) {
+			out := map[string]any{}
+			out["msgId"] = settings[i].handler
+			switch settings[i].handler {
+			case PrevPage:
+				configs.CurrentPage--
+				if configs.CurrentPage < 0 {
+					configs.CurrentPage = 0
+					return
+				}
+				out["data"] = string(configs.CurrentReadBook[configs.CurrentPage])
+			case NextPage:
+				if configs.CurrentPage == len(configs.CurrentReadBook) {
+					return
+				}
+				configs.CurrentPage++
+				out["data"] = string(configs.CurrentReadBook[configs.CurrentPage])
+			case HidePanel:
+				configs.IS_HIDE = !configs.IS_HIDE
+				out["data"] = configs.IS_HIDE
+			}
+			ws.Conn.SendMsg(out)
+		}
+	}
+}
+func handler() {
+	for {
+		opt := <-downChan
+		if opt.IsDown {
+			ok := downAllKeys[opt.Code]
+			if ok {
+				continue
+			}
+			downAllKeys[opt.Code] = true
+			hasgroupKey()
+		} else {
+			delete(downAllKeys, opt.Code)
+		}
+	}
+
+}
 func keyboardProc(nCode, wParam, lParam uintptr) uintptr {
+	// ok := lock.TryLock()
+	// if !ok {
+	// 	return 0
+	// }
+	// defer lock.Unlock()
 	kbd := (*KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
-	fmt.Println("==============>", wParam, kbd.VkCode)
 	switch wParam {
 	case WM_KEYDOWN, WM_SYSKEYDOWN:
+		downChan <- keyOpt{
+			IsDown: true,
+			Code:   kbd.VkCode,
+		}
 		fmt.Println("按下Key pressed:", kbd.VkCode)
-	case WM_KEYUP:
+	case WM_KEYUP, WM_SYSKEYUP:
 		fmt.Println("抬起Key pressed:", kbd.VkCode)
+		downChan <- keyOpt{
+			IsDown: false,
+			Code:   kbd.VkCode,
+		}
 	}
 	ret, _, _ := callNextHookEx.Call(hookID, nCode, wParam, lParam)
 	return ret
@@ -65,6 +166,7 @@ func KeyBoardHandler() {
 	}
 	defer unhookWindowsHookEx.Call(hookID)
 	// 无限循环，等待事件发生
+	go handler()
 	for {
 		var msg win.MSG
 		ok := win.GetMessage(&msg, 0, 0, 0)

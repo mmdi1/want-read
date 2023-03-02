@@ -6,6 +6,7 @@ import (
 	"log"
 	"syscall"
 	"want-read/configs"
+	"want-read/core/monitor"
 
 	"github.com/lxn/win"
 )
@@ -30,7 +31,7 @@ func (a *App) startup(ctx context.Context) {
 	}
 	configs.APP_HUND = win.FindWindow(nil, str)
 	win.SetWindowLong(configs.APP_HUND, win.GWL_EXSTYLE, win.GetWindowLong(configs.APP_HUND, win.GWL_EXSTYLE)|win.WS_EX_LAYERED)
-	// monitor.KeyBoardHandler()
+	monitor.KeyBoardHandler()
 }
 
 // Greet returns a greeting for the given name

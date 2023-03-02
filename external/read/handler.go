@@ -2,16 +2,15 @@ package read
 
 import (
 	"log"
+	"sync"
+	"want-read/configs"
 	"want-read/core/db"
 	"want-read/core/txt"
 )
 
 type App struct {
+	sync.Mutex
 	book *db.Book
-	//当前阅读的书
-	current [][]rune
-	//当前页数
-	readPage int
 }
 
 func NewApp() *App {
@@ -32,28 +31,25 @@ func (sef *App) GetBook() db.Book {
 	return out
 }
 
-// 上一页
-func (sef *App) PrevPage(page int) string {
-	sef.readPage--
-	if sef.readPage < 0 {
-		sef.readPage = 0
-		return "fisrt page"
+func (sef *App) RemoveBook(id string) bool {
+	result := db.QueryList[db.Book](db.T_BOOKS)
+	new_data := []db.Book{}
+	for i := 0; i < len(result.Data); i++ {
+		if result.Data[i].IdKey != id {
+			new_data = append(new_data, result.Data[i])
+		}
 	}
-	return string(sef.current[page])
-}
-
-// 下一页
-func (sef *App) NextPage(page int) string {
-	sef.readPage++
-	if sef.readPage > len(sef.current) {
-		sef.readPage--
-		return "last page"
-	}
-	return string(sef.current[page])
+	db.CoverList(db.T_BOOKS, new_data)
+	return true
 }
 
 // 重新分页
 func (sef *App) ReloadPage(id string) string {
+	lock := sef.TryLock()
+	if !lock {
+		return "正在读取中!"
+	}
+	defer sef.Unlock()
 	result := db.QueryList[db.Book](db.T_BOOKS)
 	for i := 0; i < len(result.Data); i++ {
 		if result.Data[i].IdKey == id {
@@ -61,21 +57,24 @@ func (sef *App) ReloadPage(id string) string {
 			break
 		}
 	}
+	if sef.book == nil {
+		return "没有书籍！"
+	}
 	size, err := db.GetNum(db.K_ShowSize)
 	if err != nil {
-		log.Println("reload page get num err:", err)
+		log.Println("reload page get num err:", err, sef.book.FileName)
 		return err.Error()
 	}
-	bt, err := txt.ReadTxt("../../upload/" + sef.book.FileName)
+	bt, err := txt.ReadTxt("./upload/" + sef.book.FileName)
 	if err != nil {
-		log.Println("reload page read txt err:", err)
+		log.Println("reload page read txt err:", err, sef.book.FileName)
 		return err.Error()
 	}
-	sef.current = txt.PageSlicing([]rune(string(bt)), size)
+	configs.CurrentReadBook = txt.PageSlicing([]rune(string(bt)), size)
 	page := sef.book.ReadSize / size
-	if page > len(sef.current) {
+	if page > len(configs.CurrentReadBook) {
 		return "last page"
 	}
-	sef.readPage = page
-	return string(sef.current[page])
+	configs.CurrentPage = page
+	return string(configs.CurrentReadBook[page])
 }
