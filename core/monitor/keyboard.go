@@ -44,12 +44,9 @@ type operationkey struct {
 }
 
 var (
-	user32           = syscall.MustLoadDLL("user32.dll")
-	setWindowsHookEx = user32.MustFindProc("SetWindowsHookExW")
-	callNextHookEx   = user32.MustFindProc("CallNextHookEx")
-	// getMessage          = user32.MustFindProc("GetMessageW")
-	// translateMessage    = user32.MustFindProc("TranslateMessage")
-	// dispatchMessage     = user32.MustFindProc("DispatchMessageW")
+	user32              = syscall.MustLoadDLL("user32.dll")
+	setWindowsHookEx    = user32.MustFindProc("SetWindowsHookExW")
+	callNextHookEx      = user32.MustFindProc("CallNextHookEx")
 	unhookWindowsHookEx = user32.MustFindProc("UnhookWindowsHookEx")
 	hookID              uintptr
 	err                 error
@@ -74,7 +71,7 @@ var (
 	}
 )
 
-func hasgroupKey() {
+func hasGroupKey() {
 	for i := 0; i < len(settings); i++ {
 		need_len := 0
 		down_len := map[uint32]bool{}
@@ -119,12 +116,11 @@ func handler() {
 				continue
 			}
 			downAllKeys[opt.Code] = true
-			hasgroupKey()
+			hasGroupKey()
 		} else {
 			delete(downAllKeys, opt.Code)
 		}
 	}
-
 }
 func keyboardProc(nCode, wParam, lParam uintptr) uintptr {
 	// ok := lock.TryLock()
@@ -161,7 +157,7 @@ func KeyBoardHandler() {
 		log.Println("hook call err:", err)
 	}
 	if hookID == 0 {
-		fmt.Println("Failed to set up hook")
+		fmt.Println("failed to set up hook")
 		return
 	}
 	defer unhookWindowsHookEx.Call(hookID)

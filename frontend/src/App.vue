@@ -1,8 +1,11 @@
 
 <template>
-  <div class="main"  style="--wails-draggable: drag">
-    <Index v-bind:mode="mode" v-show="mode.screen == 'main'" />
-    <Reading v-bind:mode="mode" v-show="mode.screen == 'read'"></Reading>
+  <div class="main" style="--wails-draggable: drag">
+    <div :class="(mode.screen == 'main' ? 'main-bg' : 'read-bg')">
+
+      <Index v-bind:mode="mode" v-show="mode.screen == 'main'" />
+      <Reading v-bind:mode="mode" v-show="mode.screen == 'read'"></Reading>
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -25,10 +28,14 @@ let websocket = new Ws("ws://127.0.0.1:8899/ws");
 websocket.link.onmessage = (event) => {
   let obj = JSON.parse(event.data);
   updateContent(obj.data);
-  console.log("=============>",obj);
+  console.log("=============>", obj);
 };
 </script>
 
 <style>
-
+.main-bg{
+  background-color: azure;
+}
+.read-bg{
+}
 </style>

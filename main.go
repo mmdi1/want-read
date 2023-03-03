@@ -2,6 +2,8 @@ package main
 
 import (
 	"embed"
+	"fmt"
+	"os"
 	"want-read/core/db"
 	"want-read/external/read"
 	"want-read/server/api"
@@ -24,6 +26,12 @@ var (
 
 func onReady() {
 	systray.SetTitle("Awesome App")
+	bt, err := os.ReadFile("./favicon.ico")
+	if err != nil {
+		fmt.Println("read file error: ", err)
+	}
+	systray.SetIcon(bt)
+	fmt.Println(".................", len(bt))
 	quitMenu := systray.AddMenuItem("Quit", "Quit the whole app")
 	go func() {
 		select {
@@ -43,7 +51,7 @@ func main() {
 	app := NewApp()
 	readApp := read.NewApp()
 	// 设置托盘提示信息
-	// go systray.Run(onReady, onExit)
+	go systray.Run(onReady, onExit)
 	r := gin.Default()
 	r.Use(api.Cors())
 	api.LocalUrl(r)
@@ -52,11 +60,11 @@ func main() {
 	wsGin.GET("/ws", ws.WsHandler)
 	go wsGin.Run("127.0.0.1:8899")
 	err := wails.Run(&options.App{
-		Title:       title,
-		Width:       600,
-		Height:      400,
-		Frameless:   true, //边框
-		AlwaysOnTop: true, //是否最顶层
+		Title:     title,
+		Width:     600,
+		Height:    400,
+		Frameless: true, //边框
+		// AlwaysOnTop: true, //是否最顶层
 		AssetServer: &assetserver.Options{
 			// Assets:  nil,
 			Handler: r,
