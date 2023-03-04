@@ -9,15 +9,11 @@
             选择书籍
           </n-divider>
           <n-row>
-            <n-upload
-              action="/api/uploadFile"
-              :show-file-list="false"
-              @finish="handleFinish"
-            >
-              <n-button>选择文本</n-button>
-            </n-upload>
-            文本需要设置为UTF-8编码
+            <n-button type="info" dashed size="tiny" @click="selectFile">
+              选择文本
+            </n-button>
           </n-row>
+          <br />
           <n-row>
             <n-scrollbar style="max-height: 220px">
               <n-list hoverable clickable>
@@ -65,6 +61,7 @@ import {
   GetBookshelf,
   ReloadPage,
   RemoveBook,
+  SelectFile,
 } from "../../wailsjs/go/read/App";
 import { onMounted, ref } from "vue";
 let bookshelf: any = ref([]);
@@ -90,6 +87,12 @@ const readBook = async (id: string) => {
 const removeBook = async (id: string) => {
   let ok = await RemoveBook(id);
   if (ok) {
+    refBookshelf();
+  }
+};
+const selectFile = async () => {
+  let str = await SelectFile();
+  if (str) {
     refBookshelf();
   }
 };

@@ -13,8 +13,10 @@ var (
 	_db     *leveldb.DB
 	once    sync.Once
 	T_BOOKS = "t_books"
-	//每页显示字数
-	K_ShowSize = "k_size"
+	//配置
+	K_Setting = "k_setting"
+	//读书进度
+	K_Read = "k_read"
 	//自增id
 	k_id = []byte("k_id")
 )
@@ -64,6 +66,7 @@ func InsertOne[T IModel](key string, t T) error {
 func CoverList[T IModel](key string, ts []T) error {
 	bt, err := json.Marshal(ts)
 	if err != nil {
+		log.Println("db cover list err:", err)
 		return err
 	}
 	return _db.Put([]byte(key), bt, nil)
@@ -74,18 +77,14 @@ func Get(key string) ([]byte, error) {
 	return _db.Get([]byte(key), nil)
 }
 
-// 根据key获取num
-func GetNum(key string) (int, error) {
-	bt, _ := Get(key)
-	if len(bt) == 0 {
-		return 50, nil
-	}
-	return strconv.Atoi(string(bt))
-}
-
 // 根据key插入val
-func Set(key, val string) error {
-	return _db.Put([]byte(key), []byte(val), nil)
+func Set(key string, val any) error {
+	bt, err := json.Marshal(val)
+	if err != nil {
+		log.Println("db set marshal err:", err)
+		return err
+	}
+	return _db.Put([]byte(key), bt, nil)
 }
 
 // 获取自增下一个id

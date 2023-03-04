@@ -13,6 +13,16 @@ body {
         sans-serif;
     height: 100%;
     font-size: 12px;
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Chrome/Safari/Opera */
+    -khtml-user-select: none;
+    /* Konqueror */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
 }
 
 @font-face {
@@ -27,6 +37,7 @@ body {
     height: 100vh;
     text-align: center;
 }
-.font12{
+
+.font12 {
     font-size: 12px;
 }

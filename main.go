@@ -2,16 +2,17 @@ package main
 
 import (
 	"embed"
-	"fmt"
+	"log"
 	"os"
 	"want-read/core/db"
+	"want-read/core/tray"
 	"want-read/external/read"
+	"want-read/external/setting"
 	"want-read/server/api"
 	"want-read/server/api/ws"
 
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
-	"github.com/getlantern/systray"
 	"github.com/gin-gonic/gin"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -24,34 +25,19 @@ var (
 	title  = "app"
 )
 
-func onReady() {
-	systray.SetTitle("Awesome App")
-	bt, err := os.ReadFile("./favicon.ico")
-	if err != nil {
-		fmt.Println("read file error: ", err)
-	}
-	systray.SetIcon(bt)
-	fmt.Println(".................", len(bt))
-	quitMenu := systray.AddMenuItem("Quit", "Quit the whole app")
-	go func() {
-		select {
-		case <-quitMenu.ClickedCh:
-			systray.Quit()
-			return
-		}
-	}()
-}
-func onExit() {
-	println("click exit")
-}
-
 func main() {
+	f, errs := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if errs != nil {
+		log.Fatal(errs)
+	}
+	defer f.Close()
+	log.SetOutput(f)
 	db.InitLevelDb("./data")
-	// Create an instance of the app structure
 	app := NewApp()
 	readApp := read.NewApp()
+	settingApp := setting.NewApp()
 	// 设置托盘提示信息
-	go systray.Run(onReady, onExit)
+	go tray.Run()
 	r := gin.Default()
 	r.Use(api.Cors())
 	api.LocalUrl(r)
@@ -60,13 +46,12 @@ func main() {
 	wsGin.GET("/ws", ws.WsHandler)
 	go wsGin.Run("127.0.0.1:8899")
 	err := wails.Run(&options.App{
-		Title:     title,
-		Width:     600,
-		Height:    400,
-		Frameless: true, //边框
-		// AlwaysOnTop: true, //是否最顶层
+		Title:       title,
+		Width:       600,
+		Height:      396,
+		Frameless:   true, //边框
+		AlwaysOnTop: true, //是否最顶层
 		AssetServer: &assetserver.Options{
-			// Assets:  nil,
 			Handler: r,
 			Assets:  assets,
 		},
@@ -88,10 +73,12 @@ func main() {
 			// 	LightModeBorder:    windows.RGB(200, 200, 200),
 			// },
 		},
-		OnStartup: app.startup,
+		OnStartup:  app.startup,
+		OnShutdown: app.shutdown,
 		Bind: []interface{}{
 			app,
 			readApp,
+			settingApp,
 		},
 	})
 	if err != nil {

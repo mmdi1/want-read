@@ -1,14 +1,16 @@
 package monitor
 
 import (
-	"fmt"
 	"log"
 	"syscall"
+	"time"
 	"unsafe"
 	"want-read/configs"
+	"want-read/core/db"
 	"want-read/server/api/ws"
 
 	"github.com/lxn/win"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 const (
@@ -31,18 +33,6 @@ type keyOpt struct {
 	IsDown bool
 }
 
-const (
-	PrevPage = iota
-	NextPage
-	HidePanel
-)
-
-type operationkey struct {
-	name    string
-	handler int
-	group   []uint32
-}
-
 var (
 	user32              = syscall.MustLoadDLL("user32.dll")
 	setWindowsHookEx    = user32.MustFindProc("SetWindowsHookExW")
@@ -52,56 +42,53 @@ var (
 	err                 error
 	downChan            = make(chan keyOpt, 1)
 	downAllKeys         = map[uint32]bool{}
-	settings            = []operationkey{
-		{
-			name:    "上一页",
-			handler: PrevPage,
-			group:   []uint32{164, 188},
-		},
-		{
-			name:    "下一页",
-			handler: NextPage,
-			group:   []uint32{164, 190},
-		},
-		{
-			name:    "隐藏",
-			handler: NextPage,
-			group:   []uint32{164, 77},
-		},
-	}
 )
 
+// 更新读书进度
+func updateReadProcess() {
+	configs.ReadBook.ReadSize = configs.CurrentPage * configs.SettingModel.ShowSize
+	configs.ReadBook.UpdateAt = time.Now()
+	db.Set(db.K_Read+configs.ReadBook.IdKey, configs.ReadBook)
+}
+
 func hasGroupKey() {
-	for i := 0; i < len(settings); i++ {
+	for i := 0; i < len(configs.SettingGroup); i++ {
 		need_len := 0
 		down_len := map[uint32]bool{}
-		for x := 0; x < len(settings[i].group); x++ {
-			need_len = len(settings[x].group)
-			_, ok := downAllKeys[settings[i].group[x]]
+		for x := 0; x < len(configs.SettingGroup[i].Group); x++ {
+			need_len = len(configs.SettingGroup[x].Group)
+			_, ok := downAllKeys[configs.SettingGroup[i].Group[x]]
 			if ok {
-				down_len[settings[i].group[x]] = true
+				down_len[configs.SettingGroup[i].Group[x]] = true
 			}
 		}
 		if need_len == len(downAllKeys) && need_len == len(down_len) {
-			out := map[string]any{}
-			out["msgId"] = settings[i].handler
-			switch settings[i].handler {
-			case PrevPage:
+			out := db.WsMsgModel{}
+			out.Id = configs.SettingGroup[i].Handler
+			switch configs.SettingGroup[i].Handler {
+			case db.WsID_PrevPage:
 				configs.CurrentPage--
 				if configs.CurrentPage < 0 {
 					configs.CurrentPage = 0
 					return
 				}
-				out["data"] = string(configs.CurrentReadBook[configs.CurrentPage])
-			case NextPage:
-				if configs.CurrentPage == len(configs.CurrentReadBook) {
+				updateReadProcess()
+				out.Data = string(configs.ReadBook.Conetent[configs.CurrentPage])
+			case db.WsID_NextPage:
+				if configs.CurrentPage == len(configs.ReadBook.Conetent) {
 					return
 				}
 				configs.CurrentPage++
-				out["data"] = string(configs.CurrentReadBook[configs.CurrentPage])
-			case HidePanel:
+				updateReadProcess()
+				out.Data = string(configs.ReadBook.Conetent[configs.CurrentPage])
+			case db.WsID_HidePanel:
 				configs.IS_HIDE = !configs.IS_HIDE
-				out["data"] = configs.IS_HIDE
+				if configs.IS_HIDE {
+					runtime.WindowHide(configs.APP_CTX)
+				} else {
+					runtime.WindowShow(configs.APP_CTX)
+				}
+				out.Data = configs.IS_HIDE
 			}
 			ws.Conn.SendMsg(out)
 		}
@@ -135,9 +122,9 @@ func keyboardProc(nCode, wParam, lParam uintptr) uintptr {
 			IsDown: true,
 			Code:   kbd.VkCode,
 		}
-		fmt.Println("按下Key pressed:", kbd.VkCode)
+		log.Println("按下Key pressed:", kbd.VkCode)
 	case WM_KEYUP, WM_SYSKEYUP:
-		fmt.Println("抬起Key pressed:", kbd.VkCode)
+		log.Println("抬起Key pressed:", kbd.VkCode)
 		downChan <- keyOpt{
 			IsDown: false,
 			Code:   kbd.VkCode,
@@ -157,7 +144,7 @@ func KeyBoardHandler() {
 		log.Println("hook call err:", err)
 	}
 	if hookID == 0 {
-		fmt.Println("failed to set up hook")
+		log.Println("failed to set up hook")
 		return
 	}
 	defer unhookWindowsHookEx.Call(hookID)
@@ -167,7 +154,7 @@ func KeyBoardHandler() {
 		var msg win.MSG
 		ok := win.GetMessage(&msg, 0, 0, 0)
 		if ok == win.FALSE {
-			fmt.Println("GetMessage error:", err)
+			log.Println("GetMessage error:", err)
 			break
 		}
 		win.TranslateMessage(&msg)

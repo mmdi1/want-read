@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"syscall"
 	"want-read/configs"
 	"want-read/core/monitor"
+
+	"github.com/getlantern/systray"
 
 	"github.com/lxn/win"
 )
@@ -24,9 +25,10 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	configs.APP_CTX = ctx
 	str, err := syscall.UTF16PtrFromString(title)
 	if err != nil {
-		log.Fatalln("err", err)
+		log.Println("app err:", err)
 		return
 	}
 	configs.APP_HUND = win.FindWindow(nil, str)
@@ -34,7 +36,7 @@ func (a *App) startup(ctx context.Context) {
 	monitor.KeyBoardHandler()
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (a *App) shutdown(ctx context.Context) {
+	log.Println("app shutdown")
+	systray.Quit()
 }

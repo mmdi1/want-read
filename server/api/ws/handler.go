@@ -2,9 +2,9 @@ package ws
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
+	"want-read/core/message"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -42,20 +42,26 @@ func (conn *connection) readLoop() {
 		}
 		var msg string
 		if err := json.Unmarshal(msgData, &msg); err != nil {
-			fmt.Println("read ws unmarshal err:", err, msg)
+			log.Println("read ws unmarshal err:", err, msg)
 		}
-		fmt.Println("===========>", msg)
+		log.Println("===========>", msg)
 	}
 }
 func (conn *connection) SendMsg(data any) {
-	fmt.Println("send ws:", data)
-	err := conn.Conn.WriteJSON(data)
+	log.Println("send ws:", data)
+	bt, err := json.Marshal(data)
 	if err != nil {
-		log.Println("send ws err:", err, data)
+		message.TipErr(err.Error())
+		return
+	}
+	err = conn.Conn.WriteMessage(1, bt)
+	if err != nil {
+		message.TipErr(err.Error())
+		return
 	}
 }
 func WsHandler(c *gin.Context) {
-	fmt.Println("init ws")
+	log.Println("init ws")
 	ws, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println("ws err:", err)

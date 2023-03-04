@@ -1,0 +1,298 @@
+[
+    {
+        "key": "Escape",
+        "code": 27
+    },
+    {
+        "key": "F1",
+        "code": 112
+    },
+    {
+        "key": "F2",
+        "code": 113
+    },
+    {
+        "key": "F4",
+        "code": 114
+    },
+    {
+        "key": "F5",
+        "code": 115
+    },
+    {
+        "key": "F6",
+        "code": 116
+    },
+    {
+        "key": "F7",
+        "code": 117
+    },
+    {
+        "key": "F8",
+        "code": 118
+    },
+    {
+        "key": "F9",
+        "code": 119
+    },
+    {
+        "key": "F10",
+        "code": 120
+    },
+    {
+        "key": "F11",
+        "code": 121
+    },
+    {
+        "key": "F12",
+        "code": 122
+    },
+    {
+        "key": "Digit1",
+        "code": 49
+    },
+    {
+        "key": "Digit2",
+        "code": 50
+    },
+    {
+        "key": "Digit3",
+        "code": 51
+    },
+    {
+        "key": "Digit4",
+        "code": 52
+    },
+    {
+        "key": "Digit5",
+        "code": 53
+    },
+    {
+        "key": "Digit6",
+        "code": 54
+    },
+    {
+        "key": "Digit7",
+        "code": 55
+    },
+    {
+        "key": "Digit8",
+        "code": 56
+    },
+    {
+        "key": "Digit9",
+        "code": 57
+    },
+    {
+        "key": "Digit0",
+        "code": 48
+    },
+    {
+        "key": "Minus",
+        "code": 189
+    },
+    {
+        "key": "Equal",
+        "code": 187
+    },
+    {
+        "key": "Backspace",
+        "code": 8
+    },
+    {
+        "key": "KeyA",
+        "code": 65
+    },
+    {
+        "key": "KeyB",
+        "code": 66
+    },
+    {
+        "key": "KeyC",
+        "code": 67
+    },
+    {
+        "key": "KeyD",
+        "code": 68
+    },
+    {
+        "key": "KeyE",
+        "code": 69
+    },
+    {
+        "key": "KeyF",
+        "code": 70
+    },
+    {
+        "key": "KeyG",
+        "code": 71
+    },
+    {
+        "key": "KeyH",
+        "code": 72
+    },
+    {
+        "key": "KeyI",
+        "code": 73
+    },
+    {
+        "key": "KeyJ",
+        "code": 74
+    },
+    {
+        "key": "KeyK",
+        "code": 75
+    },
+    {
+        "key": "KeyL",
+        "code": 76
+    },
+    {
+        "key": "KeyM",
+        "code": 77
+    },
+    {
+        "key": "KeyN",
+        "code": 78
+    },
+    {
+        "key": "KeyO",
+        "code": 79
+    },
+    {
+        "key": "KeyP",
+        "code": 80
+    },
+    {
+        "key": "KeyQ",
+        "code": 81
+    },
+    {
+        "key": "KeyR",
+        "code": 82
+    },
+    {
+        "key": "KeyS",
+        "code": 83
+    },
+    {
+        "key": "KeyT",
+        "code": 84
+    },
+    {
+        "key": "KeyU",
+        "code": 85
+    },
+    {
+        "key": "KeyV",
+        "code": 86
+    },
+    {
+        "key": "KeyW",
+        "code": 87
+    },
+    {
+        "key": "KeyX",
+        "code": 88
+    },
+    {
+        "key": "KeyY",
+        "code": 89
+    },
+    {
+        "key": "KeyZ",
+        "code": 90
+    },
+    {
+        "key": "Backquote",
+        "code": 192
+    },
+    {
+        "key": "Tab",
+        "code": 9
+    },
+    {
+        "key": "CapsLock",
+        "code": 20
+    },
+    {
+        "key": "ShiftLeft",
+        "code": 160
+    },
+    {
+        "key": "ShiftRight",
+        "code": 161
+    },
+    {
+        "key": "ControlLeft",
+        "code": 162
+    },
+    {
+        "key": "ControlRight",
+        "code": 162
+    },
+    {
+        "key": "MetaLeft",
+        "code": 91
+    },
+    {
+        "key": "MetaLeft",
+        "code": 92
+    },
+    {
+        "key": "ContextMenu",
+        "code": 93
+    },
+    {
+        "key": "AltLeft",
+        "code": 164
+    },
+    {
+        "key": "AltRight",
+        "code": 165
+    },
+    {
+        "key": "Comma",
+        "code": 188
+    },
+    {
+        "key": "Period",
+        "code": 190
+    },
+    {
+        "key": "Slash",
+        "code": 191
+    },
+    {
+        "key": "BracketLeft",
+        "code": 219
+    },
+    {
+        "key": "Backslash",
+        "code": 220
+    },
+    {
+        "key": "BracketRight",
+        "code": 221
+    },
+    {
+        "key": "ArrowUp",
+        "code": 38
+    },
+    {
+        "key": "ArrowLeft",
+        "code": 37
+    },
+    {
+        "key": "ArrowDown",
+        "code": 40
+    },
+    {
+        "key": "ArrowRight",
+        "code": 39
+    },
+    {
+        "key": "Enter",
+        "code": 13
+    }
+]

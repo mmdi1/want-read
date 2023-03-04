@@ -22,6 +22,10 @@ export function RemoveBook(arg1) {
   return window['go']['read']['App']['RemoveBook'](arg1);
 }
 
+export function SelectFile() {
+  return window['go']['read']['App']['SelectFile']();
+}
+
 export function TryLock() {
   return window['go']['read']['App']['TryLock']();
 }
