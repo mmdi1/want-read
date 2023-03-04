@@ -145,9 +145,9 @@ onMounted(async () => {
   }
 });
 const clear = () => {
-  prevPageKey = ["AltLeft", "Comma"];
-  nextPageKey = ["AltLeft", "Period"];
-  hideWindowsKey = ["AltLeft", "KeyM"];
+  prevPageKey = [];
+  nextPageKey = [];
+  hideWindowsKey = [];
   prevIpt.value = "";
   nextIpt.value = "";
   hideIpt.value = "";

@@ -56,6 +56,15 @@ func (sef *App) SaveSetting(parm db.Setting) bool {
 	if parm.ShowSize <= 0 {
 		parm.ShowSize = 50
 	}
+	if len(parm.PrevGroup) == 0 {
+		parm.PrevGroup = []uint32{164, 188}
+	}
+	if len(parm.NextGroup) == 0 {
+		parm.NextGroup = []uint32{164, 190}
+	}
+	if len(parm.HideGroup) == 0 {
+		parm.HideGroup = []uint32{164, 77}
+	}
 	err := db.Set(db.K_Setting, parm)
 	if err == nil {
 		updateSetting(parm)
