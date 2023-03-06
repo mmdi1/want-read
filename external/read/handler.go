@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -69,7 +70,7 @@ func (sef *App) RemoveBook(id string) bool {
 }
 
 // 重新分页
-func (sef *App) ReloadPage(id string) string {
+func (sef *App) ReloadPage(id string, readSize int) string {
 	lock := sef.TryLock()
 	if !lock {
 		return "正在读取中!"
@@ -93,10 +94,11 @@ func (sef *App) ReloadPage(id string) string {
 			configs.ReadBook.ReadSize = out.ReadSize
 		}
 	}
-	configs.SettingModel, err = setting.GetSetting()
-	if configs.SettingModel.ShowSize == 0 {
-		configs.SettingModel.ShowSize = 50
+	fmt.Println("=================>", configs.ReadBook.ReadSize, readSize)
+	if readSize > 0 {
+		configs.ReadBook.ReadSize = readSize
 	}
+	configs.SettingModel, err = setting.GetSetting()
 	if err != nil {
 		log.Println("get setting err:", err)
 	}
@@ -117,6 +119,11 @@ func (sef *App) ReloadPage(id string) string {
 }
 
 func (sef *App) SelectFile() string {
+	lock := sef.TryLock()
+	if !lock {
+		return "正在上传中!"
+	}
+	defer sef.Unlock()
 	path, err := runtime.OpenFileDialog(configs.APP_CTX, runtime.OpenDialogOptions{})
 	if err != nil {
 		log.Println("select file err:", err)
@@ -148,28 +155,41 @@ func (sef *App) SelectFile() string {
 		utf8Data, err := ioutil.ReadAll(transform.NewReader(bytes.NewReader(data),
 			simplifiedchinese.GBK.NewDecoder()))
 		if err != nil {
-			log.Fatal(err)
+			log.Println("ioutil readall file err:", err)
+			return err.Error()
 		}
 		// 重写写入成utf-8格式文本
 		file, err := os.Create(dirPath + fileName)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("create path file err:", err)
+			return err.Error()
 		}
 		defer file.Close()
 		bufferOut := bufio.NewWriter(file)
 		_, err = bufferOut.Write(utf8Data)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("buffer write err:", err)
+			return err.Error()
 		}
 		bufferOut.Flush()
 	}
-
+	bt, err := txt.ReadTxt(dirPath + fileName)
+	if err != nil {
+		log.Println("read txt err:", err)
+		return err.Error()
+	}
+	configs.SettingModel, err = setting.GetSetting()
+	if err != nil {
+		log.Println("get setting err:", err)
+	}
 	id := db.NextId()
 	book := db.Book{
-		IdKey:    id,
-		Name:     fileName,
-		FileName: fileName,
-		UpdateAt: time.Now(),
+		IdKey:     id,
+		Name:      fileName,
+		FileName:  fileName,
+		UpdateAt:  time.Now(),
+		TotalSize: len(txt.PageSlicing([]rune(string(bt)), configs.SettingModel.ShowSize)) * configs.SettingModel.ShowSize,
+		ReadSize:  0,
 	}
 	db.InsertOne(db.T_BOOKS, book)
 	return path

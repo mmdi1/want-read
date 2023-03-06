@@ -8,7 +8,7 @@ export function GetBookshelf():Promise<any>;
 
 export function Lock():Promise<void>;
 
-export function ReloadPage(arg1:string):Promise<string>;
+export function ReloadPage(arg1:string,arg2:number):Promise<string>;
 
 export function RemoveBook(arg1:string):Promise<boolean>;
 

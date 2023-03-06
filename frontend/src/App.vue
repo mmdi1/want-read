@@ -39,8 +39,9 @@ window.addEventListener("resize", async () => {
 });
 let mode: any = reactive({
   screen: "main",
+  bookshelf: [],
   content: "",
-  showSize: 50,
+  showSize: 100,
   fontSize: 12,
   fontColor: "rgb(220,220,220)",
   prevGroup: [],

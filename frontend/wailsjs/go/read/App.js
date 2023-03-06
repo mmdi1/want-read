@@ -14,8 +14,8 @@ export function Lock() {
   return window['go']['read']['App']['Lock']();
 }
 
-export function ReloadPage(arg1) {
-  return window['go']['read']['App']['ReloadPage'](arg1);
+export function ReloadPage(arg1, arg2) {
+  return window['go']['read']['App']['ReloadPage'](arg1, arg2);
 }
 
 export function RemoveBook(arg1) {

@@ -22,7 +22,7 @@ import (
 var (
 	//go:embed all:frontend/dist
 	assets embed.FS
-	title  = "app"
+	title  = "xy_app"
 )
 
 func main() {

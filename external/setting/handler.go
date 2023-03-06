@@ -44,7 +44,7 @@ func initSettingModel() *db.Setting {
 		HideGroup: []uint32{164, 77},
 		FontSize:  12,
 		FontColor: "rgb(120,120,120)",
-		ShowSize:  50,
+		ShowSize:  100,
 	}
 }
 
@@ -54,7 +54,7 @@ func (sef *App) SaveSetting(parm db.Setting) bool {
 		parm.FontSize = 12
 	}
 	if parm.ShowSize <= 0 {
-		parm.ShowSize = 50
+		parm.ShowSize = 100
 	}
 	if len(parm.PrevGroup) == 0 {
 		parm.PrevGroup = []uint32{164, 188}

@@ -1,6 +1,7 @@
 package monitor
 
 import (
+	"fmt"
 	"log"
 	"syscall"
 	"time"
@@ -82,6 +83,7 @@ func hasGroupKey() {
 				updateReadProcess()
 				out.Data = string(configs.ReadBook.Conetent[configs.CurrentPage])
 			case db.WsID_HidePanel:
+				fmt.Println("=============>", need_len, down_len, downAllKeys)
 				configs.IS_HIDE = !configs.IS_HIDE
 				if configs.IS_HIDE {
 					runtime.WindowHide(configs.APP_CTX)
@@ -111,13 +113,16 @@ func handler() {
 }
 func keyboardProc(nCode, wParam, lParam uintptr) uintptr {
 	kbd := (*KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+	fmt.Println("================>", kbd.VkCode)
 	switch wParam {
 	case WM_KEYDOWN, WM_SYSKEYDOWN:
+		fmt.Println("按下kkkkk:", kbd.VkCode)
 		downChan <- keyOpt{
 			IsDown: true,
 			Code:   kbd.VkCode,
 		}
 	case WM_KEYUP, WM_SYSKEYUP:
+		fmt.Println("takkkkk:", kbd.VkCode)
 		downChan <- keyOpt{
 			IsDown: false,
 			Code:   kbd.VkCode,
