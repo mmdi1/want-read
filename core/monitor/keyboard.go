@@ -110,11 +110,6 @@ func handler() {
 	}
 }
 func keyboardProc(nCode, wParam, lParam uintptr) uintptr {
-	// ok := lock.TryLock()
-	// if !ok {
-	// 	return 0
-	// }
-	// defer lock.Unlock()
 	kbd := (*KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 	switch wParam {
 	case WM_KEYDOWN, WM_SYSKEYDOWN:
@@ -122,9 +117,7 @@ func keyboardProc(nCode, wParam, lParam uintptr) uintptr {
 			IsDown: true,
 			Code:   kbd.VkCode,
 		}
-		log.Println("按下Key pressed:", kbd.VkCode)
 	case WM_KEYUP, WM_SYSKEYUP:
-		log.Println("抬起Key pressed:", kbd.VkCode)
 		downChan <- keyOpt{
 			IsDown: false,
 			Code:   kbd.VkCode,
