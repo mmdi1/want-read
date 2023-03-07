@@ -57,7 +57,10 @@
                           阅读
                         </n-button>
                         <n-tag :bordered="false" type="info" size="small">
-                          {{ ((item.read_size?(item.read_size / item.total_size):0) as any).toFixed(2)*100
+                          {{ ((item.read_size?((item.read_size) / (item.total_size))*100:0) as any).toFixed(2)
+
+
+
                           }}%
                         </n-tag>
                         <n-tag :bordered="false" type="info" size="small">
@@ -70,7 +73,7 @@
                         >
                           删除
                         </n-button>
-                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <br />
                         <n-tag :bordered="false" type="info" size="small">
                           当前字数
                         </n-tag>
@@ -145,4 +148,4 @@ const selectFile = async () => {
   margin-block-start: 0;
   margin-block-end: 0;
 }
-</style>2222222223223
+</style>

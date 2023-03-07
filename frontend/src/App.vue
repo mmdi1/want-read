@@ -61,7 +61,9 @@ websocket.link.onmessage = async (event) => {
   switch (obj.id) {
     case 0: //上一页
     case 1: //下一页
-      updateContent(obj.data);
+      let book = mode.bookshelf.find((s: any) => s.id == obj.data.id);
+      book.read_size = obj.data.readSize;
+      updateContent(obj.data.content);
       break;
     case 2: //隐藏
       mode.show = !mode.show;

@@ -74,14 +74,22 @@ func hasGroupKey() {
 					return
 				}
 				updateReadProcess()
-				out.Data = string(configs.ReadBook.Conetent[configs.CurrentPage])
+				_data := map[string]any{}
+				_data["content"] = string(configs.ReadBook.Conetent[configs.CurrentPage])
+				_data["readSize"] = configs.ReadBook.ReadSize
+				_data["id"] = configs.ReadBook.IdKey
+				out.Data = _data
 			case db.WsID_NextPage:
 				if configs.CurrentPage == len(configs.ReadBook.Conetent) {
 					return
 				}
 				configs.CurrentPage++
 				updateReadProcess()
-				out.Data = string(configs.ReadBook.Conetent[configs.CurrentPage])
+				_data := map[string]any{}
+				_data["content"] = string(configs.ReadBook.Conetent[configs.CurrentPage])
+				_data["readSize"] = configs.ReadBook.ReadSize
+				_data["id"] = configs.ReadBook.IdKey
+				out.Data = _data
 			case db.WsID_HidePanel:
 				fmt.Println("=============>", need_len, down_len, downAllKeys)
 				configs.IS_HIDE = !configs.IS_HIDE
